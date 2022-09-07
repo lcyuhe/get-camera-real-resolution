@@ -56,6 +56,7 @@
             resolution.append(`width:${width},height:${height} || `);
           });
 
+        // https://developer.mozilla.org/zh-CN/docs/Web/API/MediaDevices/enumerateDevices
         navigator.mediaDevices
           .enumerateDevices()
           .then(function (devices) {
