@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>获取摄像头实际分辨率</title>
+  </head>
+  <body>
+    <button id="start">Start Camera</button> <br /><br />
+
+    <select id="deviceSelect"></select>
+    <br /><br />
+
+    <div id="resolution">当前摄像头分辨率<br /></div>
+    <br />
+
+    <script>
+      try {
+        let currentVideoInputDeviceId = '';
+        let currentVideoInputDeviceName = '';
+        //如何使用 JavaScript 获取相机分辨率 https://verytoolz.com/blog/7c80faf2f6/
+        document
+          .querySelector('#start')
+          .addEventListener('click', async function () {
+            console.log('currentVideoInputDeviceId', currentVideoInputDeviceId);
+            let features = {
+              audio: false,
+
+              video: {
+                width: { ideal: 900000 },
+
+                height: { ideal: 900000 },
+
+                deviceId: currentVideoInputDeviceId,
+              },
+            };
+
+            let display = await navigator.mediaDevices.getUserMedia(features);
+
+            // Returns a sequence of MediaStreamTrack objects
+
+            // representing the video tracks in the stream
+
+            let settings = display.getVideoTracks()[0].getSettings();
+
+            let width = settings.width;
+
+            let height = settings.height;
+
+            console.log('Actual width of the camera video: ' + width + 'px');
+
+            console.log('Actual height of the camera video:' + height + 'px');
+
+            const resolution = document.getElementById('resolution');
+            resolution.append(`width:${width},height:${height} || `);
+          });
+
+        navigator.mediaDevices
+          .enumerateDevices()
+          .then(function (devices) {
+            const videoInputArr = [];
+            devices.forEach(function (device) {
+              console.log(
+                device.kind + ': ' + device.label + ' id = ' + device.deviceId
+              );
+              if (device.kind === 'videoinput') {
+                videoInputArr.push(device);
+              }
+            });
+            console.log('videoInputArr', videoInputArr);
+            if (videoInputArr.length > 0) {
+              currentVideoInputDeviceId = videoInputArr[0].deviceId;
+            }
+            const videoDeviceSelect = document.getElementById('deviceSelect');
+            for (const item of videoInputArr) {
+              videoDeviceSelect.options.add(
+                new Option(item.label, item.deviceId)
+              );
+            }
+            videoDeviceSelect.onchange = (e) => {
+              console.log(e.target.value);
+              currentVideoInputDeviceId = e.target.value;
+            };
+          })
+          .catch(function (err) {
+            console.log(err.name + ': ' + err.message);
+          });
+      } catch (error) {}
+    </script>
+  </body>
+</html>
